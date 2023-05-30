@@ -1,11 +1,20 @@
 import tensorflow as tf
+from consts import MAX_LENGTH, IMAGE_SIZE
+
+def load_tokenizer(file_path):
+    """A helper function to load tokenizer saved as json file."""
+    with open(file_path) as file:
+        data = json.load(file)
+        loaded_tokenizer = tf.keras.preprocessing.text.tokenizer_from_json(data)
+        return loaded_tokenizer
+
 
 class ImageCaptioner():
     """
     A custom class that builds the full model from the smaller sub models. It contains a cnn for feature extraction, a cnn_encoder to encode the features to a suitable dimension,
     an RNN decoder that contains an attention layer and RNN layer to generate text from the last predicted token + encoded image features.
     """
-    def __init__(self, cnn, cnn_encoder, rnn_decoder, max_length, **kwargs):
+    def __init__(self, cnn, cnn_encoder, rnn_decoder, **kwargs):
         """
         Initializes the ImageCaptioner class with the given arguments.
 
@@ -19,7 +28,7 @@ class ImageCaptioner():
         self.cnn = cnn
         self.cnn_encoder = cnn_encoder
         self.rnn_decoder = rnn_decoder
-        self.MAX_LENGTH = max_length
+        self.MAX_LENGTH = MAX_LENGTH
         self.START_TOKEN_INDEX = 1
         self.END_TOKEN_INDEX = 2
 
