@@ -1,13 +1,13 @@
 import tensorflow as tf
 
-class MyCustomModel():
+class ImageCaptioner():
     """
     A custom class that builds the full model from the smaller sub models. It contains a cnn for feature extraction, a cnn_encoder to encode the features to a suitable dimension,
     an RNN decoder that contains an attention layer and RNN layer to generate text from the last predicted token + encoded image features.
     """
     def __init__(self, cnn, cnn_encoder, rnn_decoder, max_length, **kwargs):
         """
-        Initializes the MyCustomModel class with the given arguments.
+        Initializes the ImageCaptioner class with the given arguments.
 
         Args:
         cnn: A convolutional neural network that is used to extract features from images.
@@ -69,3 +69,37 @@ class MyCustomModel():
             decoder_input = tf.expand_dims([tf.cast(predicted_token_index, tf.int32)], 0)
         
         return predicted_tokens_indices, attention_weights_sequence
+
+    
+class ImageLoader:
+    """
+    A helper class that loads an image from path and perform preprocessing.
+
+    Args:
+    preprocessor: A function that preprocesses input images.
+    """
+    def __init__(self, preprocessor):
+        """
+        Initializes the ImagePreprocessor class with the given preprocessor function.
+
+        Args:
+        preprocessor: A function that preprocesses input images.
+        """
+        self.preprocessor = preprocessor
+
+    def load_image(self, path):
+        """
+        Loads an image from the given path, decodes it, and preprocesses it using the preprocessor function.
+
+        Args:
+        path: A path to the image file.
+
+        Returns:
+        A tuple containing the preprocessed image and the path to the image file.
+        """
+        image = tf.io.read_file(path)
+        image = tf.image.decode_jpeg(image, channels=3)
+        image = tf.image.resize(image, IMAGE_SIZE)
+        image = self.preprocessor(image)
+
+        return image, path
