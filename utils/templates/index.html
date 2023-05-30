@@ -50,8 +50,8 @@
       <label for="input-file">Upload an image:</label>
       <input type="file" id="input-file" name="file">
       <input type="submit" value="Generate caption">
-      {% if prediction %}
-      <p>The generated caption is: {{ prediction }}</p>
+      {% if caption %}
+      <p>The generated caption is: {{ caption }}</p>
       {% endif %}
       {% if error %}
       <p class="error">{{ error }}</p>
