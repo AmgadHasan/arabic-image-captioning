@@ -1,0 +1,7 @@
+pillow
+fastapi
+uvicorn
+pydantic
+joblib
+Jinja2
+python-multipart
