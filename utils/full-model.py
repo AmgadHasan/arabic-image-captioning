@@ -104,11 +104,11 @@ class ImageLoader:
         path: A path to the image file.
 
         Returns:
-        A tuple containing the preprocessed image and the path to the image file.
+        A tuple containing the preprocessed image and the path to the original image file.
         """
         image = tf.io.read_file(path)
         image = tf.image.decode_jpeg(image, channels=3)
         image = tf.image.resize(image, IMAGE_SIZE)
         image = self.preprocessor(image)
-
+        image = tf.expand_dims(image, 0)    # Make it a batch of one image (required by tf models). Image shape is now (1, h, w, 3)
         return image, path
