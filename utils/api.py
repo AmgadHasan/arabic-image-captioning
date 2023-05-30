@@ -43,9 +43,9 @@ async def home(request: Request):
 
 @app.post("/predict")
 async def predict(request: Request, file: UploadFile = File(...)):
-    image_path = await file.read()
+    contents = await file.read()
     # Use the contents of the uploadedfile to generate text for the image
-    image = image_loader.load_image(image_path)
+    image = image_loader.load_image(contents)
 
     tokens, attention_weights = custom_model.predict(image)
     caption = tokenizer.sequences_to_texts([tokens])
