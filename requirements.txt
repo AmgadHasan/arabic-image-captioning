@@ -1,3 +1,5 @@
+numpy
+scikit-learn
 pillow
 fastapi
 uvicorn
