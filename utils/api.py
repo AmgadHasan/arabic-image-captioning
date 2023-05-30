@@ -5,12 +5,13 @@ A fast api that receives and image and returns the caption generated for this im
 from fastapi import FastAPI, Request, Form, File, UploadFile
 import uvicorn
 import os
+import io
 import json
 import tensorflow as tf
 from tf.keras.saving import load_model
 from tf.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
-from customfile import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
+from full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
 from fastapi.templating import Jinja2Templates
 
 # Declaring our FastAPI instance
@@ -43,10 +44,15 @@ async def home(request: Request):
 
 @app.post("/predict")
 async def predict(request: Request, file: UploadFile = File(...)):
-    contents = await file.read()
+    
     # Use the contents of the uploadedfile to generate text for the image
-    image = image_loader.load_image(contents)
-
+    contents = await file.read()
+    # Open the buffer as an image using the Python Imaging Library (PIL)
+    buffer = io.BytesIO(contents)
+    # Load and preprocess the image using the custom class
+    image = image_loader.load_image(buffer)
+    # Generate tokens and cache attenstion weights
     tokens, attention_weights = custom_model.predict(image)
+    # Convert token idexes to words
     caption = tokenizer.sequences_to_texts([tokens])
     return templates.TemplateResponse("index.html", {"request": request, "caption": caption})
