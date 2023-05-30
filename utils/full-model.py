@@ -1,5 +1,5 @@
 import tensorflow as tf
-from consts import MAX_LENGTH, IMAGE_SIZE
+from constants import MAX_LENGTH, IMAGE_SIZE
 
 def load_tokenizer(file_path):
     """A helper function to load tokenizer saved as json file."""
@@ -111,4 +111,4 @@ class ImageLoader:
         image = tf.image.resize(image, IMAGE_SIZE)
         image = self.preprocessor(image)
         image = tf.expand_dims(image, 0)    # Make it a batch of one image (required by tf models). Image shape is now (1, h, w, 3)
-        return image, path
+        return image
