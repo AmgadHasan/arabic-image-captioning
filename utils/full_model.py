@@ -1,5 +1,5 @@
 import tensorflow as tf
-from constants import MAX_LENGTH, IMAGE_SIZE
+from utils.constants import MAX_LENGTH, IMAGE_SIZE
 import json
 from PIL import Image
 import io

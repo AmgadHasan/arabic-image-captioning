@@ -11,17 +11,19 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
-from full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
+from utils.full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
 from fastapi.templating import Jinja2Templates
 
-# Declaring our FastAPI instance
+# Declaring our FastAPI instance and html templates
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+TEMPLATES_PATH = 'utils/templates'
+templates = Jinja2Templates(directory=TEMPLATES_PATH)
 
 # Setting paths and directories to models
-CWD = os.getcwd()
-PWD = os.path.dirname(CWD)
-MODELS_FOLDER_PATH = PWD + "/models/"
+#CWD = os.getcwd()
+#PWD = os.path.dirname(CWD)
+
+MODELS_FOLDER_PATH = "models/"
 CNN_PATH = MODELS_FOLDER_PATH + 'cnn'
 CNN_ENCODER_PATH = MODELS_FOLDER_PATH + 'cnn_encoder'
 RNN_DECODER_PATH = MODELS_FOLDER_PATH + 'decoder'
@@ -30,12 +32,12 @@ TOKENIZER_PATH = MODELS_FOLDER_PATH + 'tokenizer.json'
 # Loading models and tokenizer
 cnn = load_model(CNN_PATH)
 cnn_encoder = load_model(CNN_ENCODER_PATH)
-rnn_decoer = load_model(RNN_DECODER_PATH)
+rnn_decoder = load_model(RNN_DECODER_PATH)
 tokenizer = load_tokenizer(TOKENIZER_PATH)
 
 
 # Creating an image caption generator model from submodels
-image_captioner = ImageCaptioner(cnn, cnn_encoder, rnn_decoer)
+image_captioner = ImageCaptioner(cnn, cnn_encoder, rnn_decoder)
 image_loader = ImageLoader(preprocessor = preprocess_input)
 
 @app.get("/")
@@ -60,4 +62,4 @@ async def predict(request: Request, file: UploadFile = File(...)):
     caption = tokenizer.sequences_to_texts([tokens])
     return templates.TemplateResponse("index.html", {"request": request, "caption": caption})
 if __name__ == '__main__':
-	app.run(host="127.0.0.1",port=8080,debug=True)
+	app.run(host="127.0.0.1",port=8000,debug=True)
