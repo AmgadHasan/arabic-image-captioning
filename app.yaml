@@ -1,8 +1,12 @@
 runtime: python39
 
 handlers:
-- url: /.*
-  script: auto
-  secure: always
+- url: /favicon.ico
+  static_files: icon.png
+  upload: icon.png
 
-entrypoint: python -m uvicorn main:app --port 8000
+- url: /.*
+  script: main.py
+
+
+entrypoint: python -m uvicorn main:app --host=0.0.0.0 --port 8000
