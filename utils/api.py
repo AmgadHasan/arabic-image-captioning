@@ -8,7 +8,7 @@ import os
 import io
 import json
 import tensorflow as tf
-from tensorflow.keras.saving import load_model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
 from full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
@@ -59,3 +59,5 @@ async def predict(request: Request, file: UploadFile = File(...)):
     # Convert token idexes to words
     caption = tokenizer.sequences_to_texts([tokens])
     return templates.TemplateResponse("index.html", {"request": request, "caption": caption})
+if __name__ == '__main__':
+	app.run(host="127.0.0.1",port=8080,debug=True)
