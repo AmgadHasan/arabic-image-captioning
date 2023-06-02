@@ -8,7 +8,7 @@ import os
 import io
 import json
 import tensorflow as tf
-from tensorflow.keras.saving import load_model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
 from full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
