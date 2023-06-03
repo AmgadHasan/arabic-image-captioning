@@ -1,5 +1,0 @@
-runtime: python39
-entrypoint: gunicorn -w 2 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -t 600 main:app
-resources:
-  memory_gb: 1.5
-  disk_size_gb: 2
