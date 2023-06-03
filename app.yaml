@@ -1,12 +1,5 @@
 runtime: python39
-
-handlers:
-- url: /favicon.ico
-  static_files: icon.png
-  upload: icon.png
-
-- url: /.*
-  script: main.py
-
-
-entrypoint: python -m uvicorn main:app --host=0.0.0.0 --port 8000
+entrypoint: gunicorn -w 2 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -t 600 main:app
+resources:
+  memory_gb: 1.5
+  disk_size_gb: 2
