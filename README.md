@@ -23,6 +23,7 @@ To run the project, you will need to have the following installed on your machin
 You can run the following command to install these packages:<br>
 `pip install -r requirements.txt`
 ## Running the project
+
 To run the web app, go to the project's directory and run the following command:<br>
 `python -m uvicorn main:app --reload`
 ## Contributing
@@ -62,5 +63,4 @@ Special thanks to Mr. Mohamed El Mesawy for supervising this project.
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+   See the License for the specific language governing permissions and limitations under the License.
