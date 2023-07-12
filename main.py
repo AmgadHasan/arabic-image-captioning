@@ -61,6 +61,6 @@ async def predict(request: Request, file: UploadFile = File(...)):
     caption = tokenizer.sequences_to_texts([tokens])
     #return {"request": request, "caption": caption}
     return templates.TemplateResponse("index.html", {"request": request, "caption": caption})
-# if __name__ == '__main__':
-# 	#app.run(host="127.0.0.1",port=8000,debug=True)
-#     uvicorn.run(app, host="0.0.0.0", port=8080)
+if __name__ == '__main__':
+	#app.run(host="127.0.0.1",port=8000,debug=True)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
