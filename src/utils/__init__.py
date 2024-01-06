@@ -18,22 +18,22 @@ def load_config(path: pathlib.Path) -> pathlib.Path:
     
     return config
 
-def handle_uploaded_file(uploaded_file: UploadFile):
+async def handle_uploaded_file(uploaded_file: UploadFile):
     """
     A helper function to handle uploaded files.
-    
+
     This function takes an UploadFile object as an argument and returns an
     io.BytesIO object containing the file's contents. The function reads the
     uploaded file's contents and creates a BytesIO object to represent the
     file's data in memory.
-    
+
     Args:
     uploaded_file (UploadFile): The uploaded file to be processed.
-    
+
     Returns:
     io.BytesIO: An in-memory representation of the uploaded file's contents.
     """
-    contents = uploaded_file.read()
+    contents = await uploaded_file.read()
     image_file = io.BytesIO(contents)
-    
+
     return image_file
