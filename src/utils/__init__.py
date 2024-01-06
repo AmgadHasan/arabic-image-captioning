@@ -1,39 +1,39 @@
-import tensorflow as tf
-import json
-from PIL import Image
 import io
-from .full_model import ImageCaptioner
-from .constants import IMAGE_SIZE
+import pathlib
+import json
+from fastapi import UploadFile
 
-
-class ImageLoader:
+def load_config(path: pathlib.Path) -> pathlib.Path:
     """
-    A helper class that loads an image from path and perform preprocessing.
-
+    A helper function to load a JSON configuration file as a python dictionary.
+    
     Args:
-    preprocessor: A function that preprocesses input images.
+    path (pathlib.Path): The path to the JSON configuration file.
+    
+    Returns:
+    dict: The loaded configuration data as a Python dictionary.
     """
-    def __init__(self, preprocessor):
-        """
-        Initializes the ImagePreprocessor class with the given preprocessor function.
+    with open(path, 'r') as f:
+        config = json.load(f)
+    
+    return config
 
-        Args:
-        preprocessor: A function that preprocesses input images.
-        """
-        
-
-    def load_image(self, path):
-        """
-        Loads an image from the given path, decodes it, and preprocesses it using the preprocessor function.
-
-        Args:
-        path: A path to the image file.
-
-        Returns:
-        A tuple containing the preprocessed image and the path to the original image file.
-        """
-        image = Image.open(path)
-        image = tf.image.resize(image, IMAGE_SIZE)
-        image = self.preprocessor(image)
-        image = tf.expand_dims(image, 0)    # Make it a batch of one image (required by tf models). Image shape is now (1, h, w, 3)
-        return image
+def handle_uploaded_file(uploaded_file: UploadFile):
+    """
+    A helper function to handle uploaded files.
+    
+    This function takes an UploadFile object as an argument and returns an
+    io.BytesIO object containing the file's contents. The function reads the
+    uploaded file's contents and creates a BytesIO object to represent the
+    file's data in memory.
+    
+    Args:
+    uploaded_file (UploadFile): The uploaded file to be processed.
+    
+    Returns:
+    io.BytesIO: An in-memory representation of the uploaded file's contents.
+    """
+    contents = uploaded_file.read()
+    image_file = io.BytesIO(contents)
+    
+    return image_file
