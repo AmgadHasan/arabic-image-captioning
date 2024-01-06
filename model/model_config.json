@@ -1,0 +1,5 @@
+{
+  "max_length": 26,
+  "image_size": [299, 299],
+  "num_hidden_units": 512
+}

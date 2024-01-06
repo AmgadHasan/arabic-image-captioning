@@ -9,34 +9,38 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
-from utils.full_model import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
+from utils import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
 from fastapi.templating import Jinja2Templates
+import argparse
+import logging
+import io
+
+print("Start of script")
 # Declaring our FastAPI instance and html templates
 app = FastAPI()
 TEMPLATES_PATH = 'utils/templates'
 templates = Jinja2Templates(directory=TEMPLATES_PATH)
 
-# Setting paths and directories to models
-#CWD = os.getcwd()
-#PWD = os.path.dirname(CWD)
-print("Launching")
-MODELS_FOLDER_PATH = "models/"
-CNN_PATH = MODELS_FOLDER_PATH + 'cnn'
-CNN_ENCODER_PATH = MODELS_FOLDER_PATH + 'cnn_encoder'
-RNN_DECODER_PATH = MODELS_FOLDER_PATH + 'decoder'
-TOKENIZER_PATH = MODELS_FOLDER_PATH + 'tokenizer.json'
 
-# Loading models and tokenizer
-cnn = load_model(CNN_PATH)
-cnn_encoder = load_model(CNN_ENCODER_PATH)
-rnn_decoder = load_model(RNN_DECODER_PATH)
-tokenizer = load_tokenizer(TOKENIZER_PATH)
-print(tokenizer.sequences_to_texts([[0]]))
+def parse_args():
+    parser = argparse.ArgumentParser(description="Process some integers.")
 
-# Creating an image caption generator model from submodels
-image_captioner = ImageCaptioner(cnn, cnn_encoder, rnn_decoder)
-image_loader = ImageLoader(preprocessor = preprocess_input)
-print("API started!")
+    parser.add_argument('--host', metavar='h', type=str, help='The host for running the webapp', default="0.0.0.0")
+    parser.add_argument('-p', '--port', type=int, help='The port for running the webapp', default=8080)
+    parser.add_argument('-r', '--reload', type=bool, help='Whether to run the app in reload mode', default=False)
+    parser.add_argument('-l', '--log-level', help='sets the logging level', choices=['debug', 'info', 'warning', 'error', 'critical'],
+                        default='info')
+    parser.add_argument('-m', '--model', type=str, help='Path to the model checkpoints', default="models/")
+    parser.add_argument('-t', '--tokenizer',type=str, help='Path to the tokenizer json file', default="models/tokenizer.json")
+    
+    
+    args = parser.parse_args()
+
+    return args
+
+def setup_logging(log_level):
+    logging.basicConfig(level=getattr(logging, log_level.upper()), format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 @app.get("/")
 async def home(request: Request):
@@ -44,24 +48,25 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/predict")
-async def predict(request: Request, file: UploadFile = File(...)):
-    
+async def predict(file: UploadFile = File(...)):
     # Use the contents of the uploadedfile to generate text for the image
-    #contents = await file.read()
-    # Open the buffer as an image using the Python Imaging Library (PIL)
     contents = await file.read()
-    # Use the contents of the uploadedfile to generate text for the image
-    
-    image = image_loader.load_image(contents)
+    image_file = io.BytesIO(contents)    
     # Load and preprocess the image using the custom class
-    #image = image_loader.load_image(buffer)
+    preprocessed_image = image_loader.load_image(image_file)
     # Generate tokens and cache attenstion weights
-    tokens, attention_weights = image_captioner.predict(image)
+    tokens, attention_weights = image_captioner.predict(preprocessed_image)
     # Convert token idexes to words
     caption = tokenizer.sequences_to_texts([tokens])
-    #return {"request": request, "caption": caption}
-    return templates.TemplateResponse("index.html", {"request": request, "caption": caption})
+    
+    return  {"caption": caption}
 
 if __name__ == '__main__':
-	#app.run(host="127.0.0.1",port=8000,debug=True)
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    args = parse_args()
+
+    logging.info(f"Running web app with log level: {args.log_level}")
+    setup_logging(args.log_level)
+
+    image_captioner = ImageCaptioner(model_path=args.model, tokenize_path=args.tokenizer, preprocessor=preprocess_input)
+
+    uvicorn.run(app, host=args.host, port=args.port, reload=args.reload, log_level=args.log_level)
