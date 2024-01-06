@@ -9,7 +9,7 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from pydantic import BaseModel
-from utils import ImageLoader, ImageCaptioner, load_tokenizer    # To be modified
+from utils import ImageCaptioner, handle_uploaded_file
 from fastapi.templating import Jinja2Templates
 import argparse
 import logging
@@ -50,16 +50,11 @@ async def home(request: Request):
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     # Use the contents of the uploadedfile to generate text for the image
-    contents = await file.read()
-    image_file = io.BytesIO(contents)    
-    # Load and preprocess the image using the custom class
-    preprocessed_image = image_loader.load_image(image_file)
-    # Generate tokens and cache attenstion weights
-    tokens, attention_weights = image_captioner.predict(preprocessed_image)
-    # Convert token idexes to words
-    caption = tokenizer.sequences_to_texts([tokens])
+    image_file = await handle_uploaded_file(file)
+    # Generate caption text and cache attenstion weights
+    caption_text, attention_weights = image_captioner.predict(image_file)
     
-    return  {"caption": caption}
+    return  {"caption": caption_text, "attention_weights": attention_weights}
 
 if __name__ == '__main__':
     args = parse_args()
